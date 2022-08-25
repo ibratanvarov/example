@@ -1,0 +1,11 @@
+#!/bin/sh
+
+if [ -f ".env" ]; then
+    export $(cat ".env" | sed 's/#.*//g' | xargs)
+fi
+
+if [ ! "$(docker ps -q -f name="${ALIF_INFRA_DB}")"  ]; then
+	echo "First you need to start the ${ALIF_INFRA_DB} container"
+	exit 0;
+fi
+docker exec "${ALIF_INFRA_DB}" mysql -u root -p"${DB_PASSWORD}" -e "CREATE DATABASE ${DB_DATABASE}"

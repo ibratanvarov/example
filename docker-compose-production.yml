@@ -1,0 +1,64 @@
+version: "3.7"
+
+services:
+  app:
+    image: ${REGISTRY}/app:${IMAGE_TAG}
+    build:
+      context: .
+      dockerfile: ./docker/production/php-fpm/Dockerfile
+    container_name: alif-service-example-app
+    ports:
+      - 9000:9000
+    depends_on:
+      - redis
+
+  app-cli:
+    image: ${REGISTRY}/app-cli:${IMAGE_TAG}
+    build:
+      context: .
+      dockerfile: ./docker/production/php-cli/Dockerfile
+    container_name: alif-service-example-app-cli
+    depends_on:
+      - redis
+
+  nginx:
+    image: ${REGISTRY}/nginx:${IMAGE_TAG}
+    container_name: alif-service-example-nginx
+    build:
+      context: .
+      dockerfile: ./docker/production/nginx/Dockerfile
+    ports:
+      - 80:80
+      - 443:443
+    environment:
+      - APP_CONTAINER_NAME=alif-service-example-app
+    depends_on:
+      - app
+
+  mysql:
+    platform: linux/x86_64
+    image: mysql:5.7
+    container_name: alif-service-example-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_USER: ${DB_USERNAME}
+    volumes:
+      - mysql:/var/lib/mysql
+    ports:
+      - 3306:3306
+
+  redis:
+    container_name: alif-service-example-redis
+    image: redis:6.2-alpine
+    ports:
+      - 6379:6379
+
+volumes:
+  mysql:
+
+networks:
+  default:
+    name: alif

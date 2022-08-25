@@ -1,0 +1,50 @@
+version: "3.7"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/development/php-fpm/Dockerfile
+    container_name: alif-service-example-app
+    volumes:
+      - ./:/app
+    ports:
+      - "9000:9000"
+    depends_on:
+      - redis
+
+  app-cli:
+    build:
+      context: .
+      dockerfile: docker/development/php-cli/Dockerfile
+    container_name: alif-service-example-app-cli
+    volumes:
+      - ./:/app
+    depends_on:
+      - redis
+
+  nginx:
+    container_name: alif-service-example-nginx
+    build:
+      context: .
+      dockerfile: docker/development/nginx/Dockerfile
+    volumes:
+      - ./:/app
+    ports:
+      - "81:80"
+      - "443:443"
+    environment:
+      - APP_CONTAINER_NAME=alif-service-example-app
+    depends_on:
+      - app
+
+  redis:
+    container_name: alif-service-example-redis
+    image: redis:6.2-alpine
+    ports:
+      - "6378:6379"
+
+networks:
+  default:
+    external:
+      name: alif

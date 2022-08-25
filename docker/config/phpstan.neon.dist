@@ -1,0 +1,19 @@
+includes:
+    - /app/vendor/nunomaduro/larastan/extension.neon
+
+parameters:
+    excludePaths:
+       - /app/app/Enums
+    paths:
+        - /app/app
+        - /app/config
+        - /app/database
+        - /app/routes
+
+    level: 6
+
+    tmpDir: /app/storage/framework/cache/phpstan
+
+    checkMissingIterableValueType: false
+
+
